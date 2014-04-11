@@ -1,0 +1,1230 @@
+Description: 'overcloud'
+HeatTemplateFormatVersion: '2012-12-12'
+Outputs:
+  KeystoneURL:
+    Description: URL for the Overcloud Keystone service
+    Value:
+      Fn::Join:
+      - ''
+      - - http://
+        - Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute0
+              - networks
+        - :5000/v2.0/
+Parameters:
+  AdminPassword:
+    Default: unset
+    Description: The password for the keystone admin account, used for monitoring,
+      querying neutron etc.
+    NoEcho: true
+    Type: String
+  AdminToken:
+    Default: unset
+    Description: The keystone auth secret.
+    NoEcho: true
+    Type: String
+  BlockStorageImage:
+    Default: overcloud-cinder-volume
+    Type: String
+  CeilometerComputeAgent:
+    AllowedValues:
+    - ''
+    - Present
+    Default: ''
+    Description: Indicates whether the Compute agent is present and expects nova-compute
+      to be configured accordingly
+    Type: String
+  CeilometerMeteringSecret:
+    Default: unset
+    Description: Secret shared by the ceilometer services.
+    NoEcho: true
+    Type: String
+  CeilometerPassword:
+    Default: unset
+    Description: The password for the ceilometer service account.
+    NoEcho: true
+    Type: String
+  CinderISCSIHelper:
+    Default: tgtadm
+    Description: The iSCSI helper to use with cinder.
+    Type: String
+  CinderPassword:
+    Default: unset
+    Description: The password for the cinder service account, used by cinder-api.
+    NoEcho: true
+    Type: String
+  CloudName:
+    Default: ''
+    Description: The DNS name of this cloud. E.g. ci-overcloud.tripleo.org
+    Type: String
+  GlanceLogFile:
+    Default: ''
+    Description: The filepath of the file to use for logging messages from Glance.
+    Type: String
+  GlanceNotifierStrategy:
+    Default: noop
+    Description: Strategy to use for Glance notification queue
+    Type: String
+  GlancePassword:
+    Default: unset
+    Description: The password for the glance service account, used by the glance services.
+    NoEcho: true
+    Type: String
+  HeatPassword:
+    Default: unset
+    Description: The password for the Heat service account, used by the Heat services.
+    NoEcho: true
+    Type: String
+  HeatStackDomainAdminPassword:
+    Default: ''
+    Description: Password for heat_domain_admin user.
+    NoEcho: true
+    Type: String
+  HypervisorNeutronPhysicalBridge:
+    Default: ''
+    Description: An OVS bridge to create on each hypervisor.
+    Type: String
+  HypervisorNeutronPublicInterface:
+    Default: ''
+    Description: What interface to add to the HypervisorNeutronPhysicalBridge.
+    Type: String
+  MysqlSstUserName:
+    Default: 'sstuser'
+    Description: User name used for state snapshot transfer authentication.
+    Type: String
+  MysqlSstPassword:
+    Default: 'sstpass'
+    Description: Password used for state snapshot transfer authentication.
+    Type: String
+    NoEcho: true
+  ImageUpdatePolicy:
+    Default: REBUILD_PRESERVE_EPHEMERAL
+    Description: What policy to use when reconstructing instances. REBUILD for rebuilds,
+      REBUILD_PRESERVE_EPHEMERAL to preserve /mnt.
+    Type: String
+  KeyName:
+    Default: default
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    Type: String
+  LiveUpdateComputeImage:
+    Default: ''
+    Description: The image ID for live-updates to the overcloud compute nodes.
+    Type: String
+  LiveUpdateHost:
+    Default: ''
+    Description: The IP address for the undercloud Glance API.
+    Type: String
+  LiveUpdatePassword:
+    Default: ''
+    Description: The live-update password for the undercloud Glance API.
+    NoEcho: true
+    Type: String
+  LiveUpdateTenantName:
+    Default: ''
+    Description: The live-update tenant name for the undercloud Glance API.
+    Type: String
+  LiveUpdateUserName:
+    Default: ''
+    Description: The live-update username for the undercloud Glance API.
+    Type: String
+  NeutronBridgeMappings:
+    Default: ''
+    Description: The OVS logical->physical bridge mappings to use.
+    Type: String
+  NeutronEnableTunnelling:
+    Default: true
+    Type: String
+  NeutronFlatNetworks:
+    Default: ''
+    Description: If set, flat networks to configure in neutron plugins.
+    Type: String
+  NeutronNetworkType:
+    Default: gre
+    Type: String
+  NeutronPassword:
+    Default: unset
+    Description: The password for the neutron service account, used by neutron agents.
+    NoEcho: true
+    Type: String
+  NeutronPublicInterface:
+    Default: eth0
+    Description: What interface to bridge onto br-ex for network nodes.
+    Type: String
+  NeutronPublicInterfaceDefaultRoute:
+    Default: ''
+    Description: A custom default route for the NeutronPublicInterface.
+    Type: String
+  NeutronPublicInterfaceIP:
+    Default: ''
+    Description: A custom IP address to put onto the NeutronPublicInterface.
+    Type: String
+  NeutronPublicInterfaceRawDevice:
+    Default: ''
+    Description: If set, the public interface is a vlan with this device as the raw
+      device.
+    Type: String
+  NovaComputeDriver:
+    Default: libvirt.LibvirtDriver
+    Type: String
+  NovaComputeLibvirtType:
+    Default: ''
+    Type: String
+  NovaImage:
+    Default: overcloud-compute
+    Type: String
+  NovaPassword:
+    Default: unset
+    Description: The password for the nova service account, used by nova-api.
+    NoEcho: true
+    Type: String
+  NtpServer:
+    Default: ''
+    Type: String
+  OvercloudBlockStorageFlavor:
+    Default: baremetal
+    Description: Flavor for block storage nodes to request when deploying.
+    Type: String
+  OvercloudComputeFlavor:
+    Default: baremetal
+    Description: Flavor for compute nodes to request when deploying.
+    Type: String
+  OvercloudControlFlavor:
+    Default: baremetal
+    Description: Flavor for control nodes to request when deploying.
+    Type: String
+  OvercloudSwiftStorageFlavor:
+    Default: baremetal
+    Description: Flavor for Swift storage nodes to request when deploying.
+    Type: String
+  RabbitCookieSalt:
+    Default: unset
+    Description: Salt for the rabbit cookie, change this to force the randomly generated
+      rabbit cookie to change.
+    Type: String
+  RabbitPassword:
+    Default: guest
+    Description: The password for RabbitMQ
+    NoEcho: true
+    Type: String
+  RabbitUserName:
+    Default: guest
+    Description: The username for RabbitMQ
+    Type: String
+  SSLCertificate:
+    Default: ''
+    Description: If set, the contents of an SSL certificate .crt file for encrypting
+      SSL endpoints.
+    NoEcho: true
+    Type: String
+  SSLKey:
+    Default: ''
+    Description: If set, the contents of an SSL certificate .key file for encrypting
+      SSL endpoints.
+    NoEcho: true
+    Type: String
+  SwiftHashSuffix:
+    Default: unset
+    Description: A random string to be used as a salt when hashing to determine mappings
+      in the ring.
+    NoEcho: true
+    Type: String
+  SwiftPassword:
+    Default: unset
+    Description: The password for the swift service account, used by the swift proxy
+      services.
+    NoEcho: true
+    Type: String
+  SwiftStorageImage:
+    Default: overcloud-swift-storage
+    Type: String
+  notcomputeImage:
+    Default: overcloud-control
+    Type: String
+Resources:
+  MysqlClusterUniquePart:
+   Type: OS::Heat::RandomString
+   Properties:
+     length: 10
+  AccessPolicy:
+    Properties:
+      AllowedResources:
+      - notCompute0
+      - notCompute0Config
+      - notCompute1
+      - notCompute1Config
+    Type: OS::Heat::AccessPolicy
+  BlockStorageAccessPolicy:
+    Properties:
+      AllowedResources: []
+    Type: OS::Heat::AccessPolicy
+  BlockStorageUser:
+    Properties:
+      Policies:
+      - Ref: BlockStorageAccessPolicy
+    Type: AWS::IAM::User
+  ComputeAccessPolicy:
+    Properties:
+      AllowedResources:
+      - NovaCompute0
+      - NovaCompute0Config
+    Type: OS::Heat::AccessPolicy
+  ComputeUser:
+    Properties:
+      Policies:
+      - Ref: ComputeAccessPolicy
+    Type: AWS::IAM::User
+  NovaCompute0:
+    Metadata:
+      OpenStack::ImageBuilder::Elements:
+      - nova-compute
+      os-collect-config:
+        cfn:
+          access_key_id:
+            Ref: NovaCompute0Key
+          path: NovaCompute0Config.Metadata
+          secret_access_key:
+            Fn::GetAtt:
+            - NovaCompute0Key
+            - SecretAccessKey
+          stack_name:
+            Ref: AWS::StackName
+    Properties:
+      flavor:
+        Ref: OvercloudComputeFlavor
+      image:
+        Ref: NovaImage
+      image_update_policy:
+        Ref: ImageUpdatePolicy
+      key_name:
+        Ref: KeyName
+    Type: OS::Nova::Server
+  NovaCompute0CompletionCondition:
+    DependsOn: notCompute0Config
+    Properties:
+      Count: '1'
+      Handle:
+        Ref: NovaCompute0CompletionHandle
+      Timeout: '1800'
+    Type: AWS::CloudFormation::WaitCondition
+  NovaCompute0CompletionHandle:
+    Type: AWS::CloudFormation::WaitConditionHandle
+  NovaCompute0Config:
+    Metadata:
+      admin-password:
+        Ref: AdminPassword
+      ceilometer:
+        compute_agent:
+          Ref: CeilometerComputeAgent
+        db:
+          Fn::Join:
+          - ''
+          - - mysql://ceilometer:unset@
+            - Fn::Select:
+              - 0
+              - Fn::Select:
+                - ctlplane
+                - Fn::GetAtt:
+                  - notCompute0
+                  - networks
+            - /ceilometer
+        metering_secret:
+          Ref: CeilometerMeteringSecret
+        service-password:
+          Ref: CeilometerPassword
+      completion-handle:
+        Ref: NovaCompute0CompletionHandle
+      glance:
+        host:
+          Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute0
+              - networks
+      hosts:
+        Fn::Join:
+        - '
+
+          '
+        - - Fn::Join:
+            - '
+
+              '
+            - - Fn::Join:
+                - ' '
+                - - Fn::Select:
+                    - 0
+                    - Fn::Select:
+                      - ctlplane
+                      - Fn::GetAtt:
+                        - NovaCompute0
+                        - networks
+                  - Fn::Select:
+                    - name
+                    - Fn::GetAtt:
+                      - NovaCompute0
+                      - show
+                  - Fn::Join:
+                    - .
+                    - - Fn::Select:
+                        - name
+                        - Fn::GetAtt:
+                          - NovaCompute0
+                          - show
+                      - novalocal
+          - Fn::Join:
+            - ' '
+            - - Fn::Select:
+                - 0
+                - Fn::Select:
+                  - ctlplane
+                  - Fn::GetAtt:
+                    - notCompute0
+                    - networks
+              - Ref: CloudName
+              - unused
+      keystone:
+        host:
+          Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute0
+              - networks
+      live-update:
+        base_image_id:
+          Ref: NovaImage
+        host:
+          Ref: LiveUpdateHost
+        live_update_image_id:
+          Ref: LiveUpdateComputeImage
+        password:
+          Ref: LiveUpdatePassword
+        tenant-name:
+          Ref: LiveUpdateTenantName
+        username:
+          Ref: LiveUpdateUserName
+      neutron:
+        flat-networks:
+          Ref: NeutronFlatNetworks
+        host:
+          Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute0
+              - networks
+        ovs:
+          bridge_mappings:
+            Ref: NeutronBridgeMappings
+          enable_tunneling: 'True'
+          local_ip:
+            Fn::Select:
+            - 0
+            - Fn::Select:
+              - ctlplane
+              - Fn::GetAtt:
+                - NovaCompute0
+                - networks
+          network_vlan_ranges: ''
+          physical_bridge:
+            Ref: HypervisorNeutronPhysicalBridge
+          public_interface:
+            Ref: HypervisorNeutronPublicInterface
+          tenant_network_type: gre
+        ovs_db:
+          Fn::Join:
+          - ''
+          - - mysql://neutron:unset@
+            - Fn::Select:
+              - 0
+              - Fn::Select:
+                - ctlplane
+                - Fn::GetAtt:
+                  - notCompute0
+                  - networks
+            - /neutron
+        service-password:
+          Ref: NeutronPassword
+      nova:
+        compute_driver:
+          Ref: NovaComputeDriver
+        compute_libvirt_type:
+          Ref: NovaComputeLibvirtType
+        db:
+          Fn::Join:
+          - ''
+          - - mysql://nova:unset@
+            - Fn::Select:
+              - 0
+              - Fn::Select:
+                - ctlplane
+                - Fn::GetAtt:
+                  - notCompute0
+                  - networks
+            - /nova
+        host:
+          Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute0
+              - networks
+        service-password:
+          Ref: NovaPassword
+      os-collect-config:
+        cfn:
+          access_key_id:
+            Ref: NovaCompute0Key
+          path: NovaCompute0Config.Metadata
+          secret_access_key:
+            Fn::GetAtt:
+            - NovaCompute0Key
+            - SecretAccessKey
+          stack_name:
+            Ref: AWS::StackName
+      rabbit:
+        host:
+          Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute0
+              - networks
+        nodes:
+          - Fn::GetAtt:
+            - notCompute0
+            - name
+          - Fn::GetAtt:
+            - notCompute1
+            - name
+        password:
+          Ref: RabbitPassword
+        username:
+          Ref: RabbitUserName
+    Properties:
+      ImageId: '0'
+      InstanceType: '0'
+    Type: AWS::AutoScaling::LaunchConfiguration
+  NovaCompute0Key:
+    Properties:
+      UserName:
+        Ref: ComputeUser
+    Type: AWS::IAM::AccessKey
+  RabbitCookie:
+    Properties:
+      length: 20
+      salt:
+        Ref: RabbitCookieSalt
+    Type: OS::Heat::RandomString
+  SwiftStorageAccessPolicy:
+    Properties:
+      AllowedResources: []
+    Type: OS::Heat::AccessPolicy
+  SwiftStorageUser:
+    Properties:
+      Policies:
+      - Ref: SwiftStorageAccessPolicy
+    Type: AWS::IAM::User
+  User:
+    Properties:
+      Policies:
+      - Ref: AccessPolicy
+    Type: AWS::IAM::User
+  notCompute0:
+    Metadata:
+      os-collect-config:
+        cfn:
+          access_key_id:
+            Ref: notCompute0Key
+          path: notCompute0Config.Metadata
+          secret_access_key:
+            Fn::GetAtt:
+            - notCompute0Key
+            - SecretAccessKey
+          stack_name:
+            Ref: AWS::StackName
+    Properties:
+      flavor:
+        Ref: OvercloudControlFlavor
+      image:
+        Ref: notcomputeImage
+      image_update_policy:
+        Ref: ImageUpdatePolicy
+      key_name:
+        Ref: KeyName
+    Type: OS::Nova::Server
+  notCompute1:
+    Metadata:
+      os-collect-config:
+        cfn:
+          access_key_id:
+            Ref: notCompute1Key
+          path: notCompute1Config.Metadata
+          secret_access_key:
+            Fn::GetAtt:
+            - notCompute1Key
+            - SecretAccessKey
+          stack_name:
+            Ref: AWS::StackName
+    Properties:
+      flavor:
+        Ref: OvercloudControlFlavor
+      image:
+        Ref: notcomputeImage
+      image_update_policy:
+        Ref: ImageUpdatePolicy
+      key_name:
+        Ref: KeyName
+    Type: OS::Nova::Server
+  notCompute0CompletionCondition:
+    DependsOn: notCompute0Config
+    Properties:
+      Count: '1'
+      Handle:
+        Ref: notCompute0CompletionHandle
+      Timeout: '1800'
+    Type: AWS::CloudFormation::WaitCondition
+  notCompute0CompletionHandle:
+    Type: OS::Heat::UpdateWaitConditionHandle
+  notCompute1CompletionCondition:
+    DependsOn: notCompute1Config
+    Properties:
+      Count: '1'
+      Handle:
+        Ref: notCompute1CompletionHandle
+      Timeout: '1800'
+    Type: AWS::CloudFormation::WaitCondition
+  notCompute1CompletionHandle:
+    Type: OS::Heat::UpdateWaitConditionHandle
+  notCompute0Config:
+    Metadata:
+      OpenStack::Heat::Stack: {}
+      OpenStack::ImageBuilder::Elements:
+      - boot-stack
+      - heat-cfntools
+      - heat-localip
+      - neutron-network-node
+      admin-password:
+        Ref: AdminPassword
+      admin-token:
+        Ref: AdminToken
+      bootstack:
+        public_interface_ip:
+          Ref: NeutronPublicInterfaceIP
+      ceilometer:
+        db: mysql://ceilometer:unset@localhost/ceilometer
+        metering_secret:
+          Ref: CeilometerMeteringSecret
+        service-password:
+          Ref: CeilometerPassword
+      cinder:
+        db: mysql://cinder:unset@localhost/cinder
+        iscsi-helper:
+          Ref: CinderISCSIHelper
+        service-password:
+          Ref: CinderPassword
+        volume_size_mb: '5000'
+      completion-handle:
+        Ref: notCompute0CompletionHandle
+      controller-address:
+        Fn::Select:
+        - 0
+        - Fn::Select:
+          - ctlplane
+          - Fn::GetAtt:
+            - notCompute0
+            - networks
+      db-password: unset
+      glance:
+        backend: swift
+        db: mysql://glance:unset@localhost/glance
+        host:
+          Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute0
+              - networks
+        log-file:
+          Ref: GlanceLogFile
+        notifier-strategy:
+          Ref: GlanceNotifierStrategy
+        service-password:
+          Ref: GlancePassword
+        swift-store-key:
+          Ref: GlancePassword
+        swift-store-user: service:glance
+      heat:
+        admin_password:
+          Ref: HeatPassword
+        admin_tenant_name: service
+        admin_user: heat
+        auth_encryption_key: unset___________
+        db: mysql://heat:unset@localhost/heat
+        metadata_server_url:
+          Fn::Join:
+          - ''
+          - - http://
+            - Fn::Select:
+              - 0
+              - Fn::Select:
+                - ctlplane
+                - Fn::GetAtt:
+                  - notCompute0
+                  - networks
+            - :8000
+        stack_domain_admin_password:
+          Ref: HeatStackDomainAdminPassword
+        waitcondition_server_url:
+          Fn::Join:
+          - ''
+          - - http://
+            - Fn::Select:
+              - 0
+              - Fn::Select:
+                - ctlplane
+                - Fn::GetAtt:
+                  - notCompute0
+                  - networks
+            - :8000/v1/waitcondition
+        watch_server_url:
+          Fn::Join:
+          - ''
+          - - http://
+            - Fn::Select:
+              - 0
+              - Fn::Select:
+                - ctlplane
+                - Fn::GetAtt:
+                  - notCompute0
+                  - networks
+            - :8003
+      hosts:
+        Fn::Join:
+        - ' '
+        - - Fn::Select:
+            - 0
+            - Fn::Select:
+              - ctlplane
+              - Fn::GetAtt:
+                - notCompute0
+                - networks
+          - Ref: CloudName
+      keystone:
+        db: mysql://keystone:unset@localhost/keystone
+        host:
+          Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute0
+              - networks
+      neutron:
+        flat-networks:
+          Ref: NeutronFlatNetworks
+        host:
+          Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute0
+              - networks
+        metadata_proxy_shared_secret: unset
+        ovs:
+          bridge_mappings:
+            Ref: NeutronBridgeMappings
+          enable_tunneling: 'True'
+          local_ip:
+            Fn::Select:
+            - 0
+            - Fn::Select:
+              - ctlplane
+              - Fn::GetAtt:
+                - notCompute0
+                - networks
+          physical_bridge: br-ex
+          public_interface:
+            Ref: NeutronPublicInterface
+          public_interface_raw_device:
+            Ref: NeutronPublicInterfaceRawDevice
+          public_interface_route:
+            Ref: NeutronPublicInterfaceDefaultRoute
+          tenant_network_type: gre
+        ovs_db: mysql://neutron:unset@localhost/ovs_neutron?charset=utf8
+        service-password:
+          Ref: NeutronPassword
+      nova:
+        compute_driver: libvirt.LibvirtDriver
+        db: mysql://nova:unset@localhost/nova
+        default_floating_pool: ext-net
+        host:
+          Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute0
+              - networks
+        metadata-proxy: true
+        service-password:
+          Ref: NovaPassword
+      ntp:
+        servers:
+        - fudge: stratum 0
+          server:
+            Ref: NtpServer
+      os-collect-config:
+        cfn:
+          access_key_id:
+            Ref: notCompute0Key
+          path: notCompute0Config.Metadata
+          secret_access_key:
+            Fn::GetAtt:
+            - notCompute0Key
+            - SecretAccessKey
+          stack_name:
+            Ref: AWS::StackName
+      rabbit:
+        cookie:
+          Fn::GetAtt:
+          - RabbitCookie
+          - value
+        nodes:
+          - Fn::GetAtt:
+            - notCompute0
+            - name
+          - Fn::GetAtt:
+            - notCompute1
+            - name
+        host:
+          Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute0
+              - networks
+        password:
+          Ref: RabbitPassword
+        username:
+          Ref: RabbitUserName
+      stunnel:
+        cert:
+          Ref: SSLCertificate
+        key:
+          Ref: SSLKey
+        ports:
+        - accept: 13773
+          connect: 8773
+          name: ec2
+        - accept: 13292
+          connect: 9292
+          name: image
+        - accept: 13000
+          connect: 5000
+          name: identity
+        - accept: 13696
+          connect: 9696
+          name: network
+        - accept: 13774
+          connect: 8774
+          name: compute
+        - accept: 13080
+          connect: 8080
+          name: swift-proxy
+        - accept: 13776
+          connect: 8776
+          name: cinder
+      mysql:
+        cluster-name:
+          Fn::Join:
+            - '-'
+            - - 'tripleo'
+              - {Ref: MysqlClusterUniquePart}
+        host:
+          Fn::Select:
+            - 0
+            - Fn::Select:
+              - 'ctlplane'
+              - Fn::GetAtt:
+                - notCompute0
+                - networks
+        nodes:
+          Fn::Join:
+            - ','
+            - - Fn::Select:
+                - 0
+                - Fn::Select:
+                  - 'ctlplane'
+                  - Fn::GetAtt:
+                    - notCompute0
+                    - networks
+              - Fn::Select:
+                - 0
+                - Fn::Select:
+                  - 'ctlplane'
+                  - Fn::GetAtt:
+                    - notCompute1
+                    - networks
+        sstusername:
+          Ref: MysqlSstUserName
+        sstpassword:
+          Ref: MysqlSstPassword
+      swift:
+        devices:
+          Fn::Join:
+          - ', '
+          - - Fn::Join:
+              - ''
+              - - r1z1-
+                - Fn::Select:
+                  - 0
+                  - Fn::Select:
+                    - ctlplane
+                    - Fn::GetAtt:
+                      - notCompute0
+                      - networks
+                - :%PORT%/d1
+            - Fn::Join:
+              - ', '
+              - []
+        hash:
+          Ref: SwiftHashSuffix
+        part-power: 10
+        replicas: 1
+        service-password:
+          Ref: SwiftPassword
+    Properties:
+      ImageId: '0'
+      InstanceType: '0'
+    Type: AWS::AutoScaling::LaunchConfiguration
+# start
+  notCompute1Config:
+    Metadata:
+      OpenStack::Heat::Stack: {}
+      OpenStack::ImageBuilder::Elements:
+      - boot-stack
+      - heat-cfntools
+      - heat-localip
+      - neutron-network-node
+      admin-password:
+        Ref: AdminPassword
+      admin-token:
+        Ref: AdminToken
+      bootstack:
+        public_interface_ip:
+          Ref: NeutronPublicInterfaceIP
+      ceilometer:
+        db: mysql://ceilometer:unset@localhost/ceilometer
+        metering_secret:
+          Ref: CeilometerMeteringSecret
+        service-password:
+          Ref: CeilometerPassword
+      cinder:
+        db: mysql://cinder:unset@localhost/cinder
+        iscsi-helper:
+          Ref: CinderISCSIHelper
+        service-password:
+          Ref: CinderPassword
+        volume_size_mb: '5000'
+      completion-handle:
+        Ref: notCompute1CompletionHandle
+      controller-address:
+        Fn::Select:
+        - 0
+        - Fn::Select:
+          - ctlplane
+          - Fn::GetAtt:
+            - notCompute1
+            - networks
+      db-password: unset
+      glance:
+        backend: swift
+        db: mysql://glance:unset@localhost/glance
+        host:
+          Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute1
+              - networks
+        log-file:
+          Ref: GlanceLogFile
+        notifier-strategy:
+          Ref: GlanceNotifierStrategy
+        service-password:
+          Ref: GlancePassword
+        swift-store-key:
+          Ref: GlancePassword
+        swift-store-user: service:glance
+      heat:
+        admin_password:
+          Ref: HeatPassword
+        admin_tenant_name: service
+        admin_user: heat
+        auth_encryption_key: unset___________
+        db: mysql://heat:unset@localhost/heat
+        metadata_server_url:
+          Fn::Join:
+          - ''
+          - - http://
+            - Fn::Select:
+              - 0
+              - Fn::Select:
+                - ctlplane
+                - Fn::GetAtt:
+                  - notCompute1
+                  - networks
+            - :8000
+        stack_domain_admin_password:
+          Ref: HeatStackDomainAdminPassword
+        waitcondition_server_url:
+          Fn::Join:
+          - ''
+          - - http://
+            - Fn::Select:
+              - 0
+              - Fn::Select:
+                - ctlplane
+                - Fn::GetAtt:
+                  - notCompute1
+                  - networks
+            - :8000/v1/waitcondition
+        watch_server_url:
+          Fn::Join:
+          - ''
+          - - http://
+            - Fn::Select:
+              - 0
+              - Fn::Select:
+                - ctlplane
+                - Fn::GetAtt:
+                  - notCompute1
+                  - networks
+            - :8003
+      hosts:
+        Fn::Join:
+        - ' '
+        - - Fn::Select:
+            - 0
+            - Fn::Select:
+              - ctlplane
+              - Fn::GetAtt:
+                - notCompute1
+                - networks
+          - Ref: CloudName
+      keystone:
+        db: mysql://keystone:unset@localhost/keystone
+        host:
+          Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute1
+              - networks
+      neutron:
+        flat-networks:
+          Ref: NeutronFlatNetworks
+        host:
+          Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute1
+              - networks
+        metadata_proxy_shared_secret: unset
+        ovs:
+          bridge_mappings:
+            Ref: NeutronBridgeMappings
+          enable_tunneling: 'True'
+          local_ip:
+            Fn::Select:
+            - 0
+            - Fn::Select:
+              - ctlplane
+              - Fn::GetAtt:
+                - notCompute1
+                - networks
+          physical_bridge: br-ex
+          public_interface:
+            Ref: NeutronPublicInterface
+          public_interface_raw_device:
+            Ref: NeutronPublicInterfaceRawDevice
+          public_interface_route:
+            Ref: NeutronPublicInterfaceDefaultRoute
+          tenant_network_type: gre
+        ovs_db: mysql://neutron:unset@localhost/ovs_neutron?charset=utf8
+        service-password:
+          Ref: NeutronPassword
+      nova:
+        compute_driver: libvirt.LibvirtDriver
+        db: mysql://nova:unset@localhost/nova
+        default_floating_pool: ext-net
+        host:
+          Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute1
+              - networks
+        metadata-proxy: true
+        service-password:
+          Ref: NovaPassword
+      ntp:
+        servers:
+        - fudge: stratum 0
+          server:
+            Ref: NtpServer
+      os-collect-config:
+        cfn:
+          access_key_id:
+            Ref: notCompute1Key
+          path: notCompute1Config.Metadata
+          secret_access_key:
+            Fn::GetAtt:
+            - notCompute1Key
+            - SecretAccessKey
+          stack_name:
+            Ref: AWS::StackName
+      rabbit:
+        cookie:
+          Fn::GetAtt:
+          - RabbitCookie
+          - value
+        nodes:
+          - Fn::GetAtt:
+            - notCompute0
+            - name
+          - Fn::GetAtt:
+            - notCompute1
+            - name
+        host:
+          Fn::Select:
+          - 0
+          - Fn::Select:
+            - ctlplane
+            - Fn::GetAtt:
+              - notCompute0
+              - networks
+        password:
+          Ref: RabbitPassword
+        username:
+          Ref: RabbitUserName
+      stunnel:
+        cert:
+          Ref: SSLCertificate
+        key:
+          Ref: SSLKey
+        ports:
+        - accept: 13773
+          connect: 8773
+          name: ec2
+        - accept: 13292
+          connect: 9292
+          name: image
+        - accept: 13000
+          connect: 5000
+          name: identity
+        - accept: 13696
+          connect: 9696
+          name: network
+        - accept: 13774
+          connect: 8774
+          name: compute
+        - accept: 13080
+          connect: 8080
+          name: swift-proxy
+        - accept: 13776
+          connect: 8776
+          name: cinder
+      mysql:
+        cluster-name:
+          Fn::Join:
+            - '-'
+            - - 'tripleo'
+              - {Ref: MysqlClusterUniquePart}
+        host:
+          Fn::Select:
+            - 0
+            - Fn::Select:
+              - 'ctlplane'
+              - Fn::GetAtt:
+                - notCompute1
+                - networks
+        nodes:
+          Fn::Join:
+            - ','
+            - - Fn::Select:
+                - 0
+                - Fn::Select:
+                  - 'ctlplane'
+                  - Fn::GetAtt:
+                    - notCompute0
+                    - networks
+              - Fn::Select:
+                - 0
+                - Fn::Select:
+                  - 'ctlplane'
+                  - Fn::GetAtt:
+                    - notCompute1
+                    - networks
+        sstusername:
+          Ref: MysqlSstUserName
+        sstpassword:
+          Ref: MysqlSstPassword
+      swift:
+        devices:
+          Fn::Join:
+          - ', '
+          - - Fn::Join:
+              - ''
+              - - r1z1-
+                - Fn::Select:
+                  - 0
+                  - Fn::Select:
+                    - ctlplane
+                    - Fn::GetAtt:
+                      - notCompute1
+                      - networks
+                - :%PORT%/d1
+            - Fn::Join:
+              - ', '
+              - []
+        hash:
+          Ref: SwiftHashSuffix
+        part-power: 10
+        replicas: 1
+        service-password:
+          Ref: SwiftPassword
+    Properties:
+      ImageId: '0'
+      InstanceType: '0'
+    Type: AWS::AutoScaling::LaunchConfiguration
+# end
+  notCompute0Key:
+    Properties:
+      UserName:
+        Ref: User
+    Type: AWS::IAM::AccessKey
+  notCompute1Key:
+    Properties:
+      UserName:
+        Ref: User
+    Type: AWS::IAM::AccessKey
